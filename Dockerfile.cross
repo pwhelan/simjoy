@@ -1,0 +1,5 @@
+FROM dockercore/golang-cross:1.9.2
+ENV DISABLE_WARN_OUTSIDE_CONTAINER=1
+RUN go get github.com/constabulary/gb/...
+WORKDIR /go/src/github.com/pwhelan/simjoy
+ADD . /go/src/github.com/pwhelan/simjoy
