@@ -24,13 +24,13 @@ func genDecl(node ast.Node) bool {
 		name := vspec.Names[0].Name
 		value := vspec.Values[0].(*ast.BasicLit).Value
 
-		if name == "BTN_DIGI" {
+		if name == "BTN_DIGI" || name == "ABS_PRESSURE" {
 			injoystick = false
 		}
 		if injoystick == true {
 			fmt.Fprintf(fd, "\t%s = %s\n", name, value)
 		}
-		if name == "BTN_JOYSTICK" {
+		if name == "BTN_JOYSTICK" || name == "REL_CNT" {
 			injoystick = true
 		}
 	}
@@ -50,13 +50,13 @@ func genLuaTable(node ast.Node) bool {
 		name := vspec.Names[0].Name
 		value := vspec.Values[0].(*ast.BasicLit).Value
 
-		if name == "BTN_DIGI" {
+		if name == "BTN_DIGI" || name == "ABS_PRESSURE" {
 			injoystick = false
 		}
 		if injoystick == true {
 			fmt.Fprintf(fd, "\tt.RawSetString(\"%s\", lua.LNumber(%s))\n", name, value)
 		}
-		if name == "BTN_JOYSTICK" {
+		if name == "BTN_JOYSTICK" || name == "REL_CNT" {
 			injoystick = true
 		}
 	}

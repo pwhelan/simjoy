@@ -59,6 +59,11 @@ func (vj *VJoy) SetButton(btn int, status int) {
 	desc.ui.KeyEvent(uinput.EventCode(btn), uinput.EventValue(status))
 }
 
+func (vj *VJoy) SetAxis(axis int, pos int) {
+	desc := vj.handler.(*vjoyLinuxHandler)
+	desc.ui.AbsEvent(uinput.EventCode(axis), uinput.EventValue(pos))
+}
+
 func (vj *VJoy) Tick() {
 	desc := vj.handler.(*vjoyLinuxHandler)
 	desc.ui.SynEvent()

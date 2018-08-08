@@ -36,6 +36,25 @@ const (
 	BTN_MODE = 316
 	BTN_THUMBL = 317
 	BTN_THUMBR = 318
+	ABS_X = 0
+	ABS_Y = 1
+	ABS_Z = 2
+	ABS_RX = 3
+	ABS_RY = 4
+	ABS_RZ = 5
+	ABS_THROTTLE = 6
+	ABS_RUDDER = 7
+	ABS_WHEEL = 8
+	ABS_GAS = 9
+	ABS_BRAKE = 10
+	ABS_HAT0X = 16
+	ABS_HAT0Y = 17
+	ABS_HAT1X = 18
+	ABS_HAT1Y = 19
+	ABS_HAT2X = 20
+	ABS_HAT2Y = 21
+	ABS_HAT3X = 22
+	ABS_HAT3Y = 23
 )
 func Lua(L *lua.LState) {
 	t := L.NewTable()
@@ -72,5 +91,24 @@ func Lua(L *lua.LState) {
 	t.RawSetString("BTN_MODE", lua.LNumber(316))
 	t.RawSetString("BTN_THUMBL", lua.LNumber(317))
 	t.RawSetString("BTN_THUMBR", lua.LNumber(318))
+	t.RawSetString("ABS_X", lua.LNumber(0))
+	t.RawSetString("ABS_Y", lua.LNumber(1))
+	t.RawSetString("ABS_Z", lua.LNumber(2))
+	t.RawSetString("ABS_RX", lua.LNumber(3))
+	t.RawSetString("ABS_RY", lua.LNumber(4))
+	t.RawSetString("ABS_RZ", lua.LNumber(5))
+	t.RawSetString("ABS_THROTTLE", lua.LNumber(6))
+	t.RawSetString("ABS_RUDDER", lua.LNumber(7))
+	t.RawSetString("ABS_WHEEL", lua.LNumber(8))
+	t.RawSetString("ABS_GAS", lua.LNumber(9))
+	t.RawSetString("ABS_BRAKE", lua.LNumber(10))
+	t.RawSetString("ABS_HAT0X", lua.LNumber(16))
+	t.RawSetString("ABS_HAT0Y", lua.LNumber(17))
+	t.RawSetString("ABS_HAT1X", lua.LNumber(18))
+	t.RawSetString("ABS_HAT1Y", lua.LNumber(19))
+	t.RawSetString("ABS_HAT2X", lua.LNumber(20))
+	t.RawSetString("ABS_HAT2Y", lua.LNumber(21))
+	t.RawSetString("ABS_HAT3X", lua.LNumber(22))
+	t.RawSetString("ABS_HAT3Y", lua.LNumber(23))
 	L.SetGlobal("joystick", t)
 }

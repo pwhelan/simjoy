@@ -35,6 +35,23 @@ func registerVJoy(L *lua.LState) {
 			}
 			return 0
 		},
+		"SetAxis": func(L *lua.LState) int {
+			ud := L.CheckUserData(1)
+			if vj, ok := ud.Value.(*vjoy.VJoy); !ok {
+				L.ArgError(1, "vjoy expected")
+				return 0
+			} else {
+				if L.GetTop() == 3 {
+					axis := L.CheckInt(2)
+					pos := L.CheckInt(3)
+					vj.SetAxis(axis, pos)
+					return 0
+				} else {
+					L.ArgError(1, "two arguments expected")
+				}
+			}
+			return 0
+		},
 	}))
 }
 

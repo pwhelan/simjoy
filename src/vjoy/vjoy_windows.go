@@ -34,6 +34,13 @@ func (vj *VJoy) SetButton(btn int, status int) {
 	}
 }
 
+func (vj *VJoy) SetAxis(axis int, pos int) {
+	desc := vj.handler.(*vjoyWindowsHandler)
+	if axis := desc.dev.Axi(uint(axis)); axis != nil {
+		axis.Seti(pos)
+	}
+}
+
 func (vj *VJoy) Tick() {
 	desc := vj.handler.(*vjoyWindowsHandler)
 	desc.dev.Update()
