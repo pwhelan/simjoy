@@ -15,8 +15,6 @@ const luaVJOyTypeName = "person"
 // Registers my person type to given L.
 func registerVJoy(L *lua.LState) {
 	mt := L.NewTypeMetatable(luaVJOyTypeName)
-	// static attributes
-	//L.SetField(mt, "new", L.NewFunction(newPerson))
 	// methods
 	L.SetField(mt, "__index", L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
 		"SetButton": func(L *lua.LState) int {
@@ -119,8 +117,12 @@ func main() {
 			miditable.Append(userdataMIDI(L, m))
 		}
 		L.SetGlobal("midi", miditable)
-
 		L.SetGlobal("vjoys", vjoystable)
+		L.SetGlobal("tick", lua.LNumber(float64(tick)))
+
+		if err := L.DoFile("hello.lua"); err != nil {
+			panic(err)
+		}
 
 		for {
 			select {
