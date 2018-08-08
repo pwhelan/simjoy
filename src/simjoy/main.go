@@ -6,6 +6,7 @@ import (
 
 	lua "github.com/yuin/gopher-lua"
 
+	"midi"
 	"vjoy"
 )
 
@@ -63,7 +64,30 @@ func userdataVJoy(L *lua.LState, vj *vjoy.VJoy) lua.LValue {
 	return ud
 }
 
+// Constructor
+// midi.in = {
+//	channel
+//	status
+//	data = [
+//		0,
+//		1
+//	]
+// }
+// midi.out = {
+// 	send(channel, status, hb, lb)
+// }
+func userdataMIDI(L *lua.LState, m *midi.MIDI) lua.LValue {
+	t := L.NewTable()
+	t.RawSet(lua.LString("in"), lua.LNil)
+	return t
+}
+
 func main() {
+	midis, err := midi.OpenDevices()
+	if err != nil {
+		panic(err)
+	}
+
 	vjoys := make([]*vjoy.VJoy, 1)
 	vj, err := vjoy.OpenVJoy(0)
 	if err != nil {
@@ -89,6 +113,13 @@ func main() {
 		}
 
 		L.SetGlobal("starting", lua.LBool(true))
+
+		miditable := L.NewTable()
+		for _, m := range midis.Devices {
+			miditable.Append(userdataMIDI(L, m))
+		}
+		L.SetGlobal("midi", miditable)
+
 		L.SetGlobal("vjoys", vjoystable)
 
 		for {
@@ -96,6 +127,20 @@ func main() {
 			case <-quit:
 				fmt.Println("quit")
 				return
+			case ev := <-midis.Channel:
+				m := miditable.RawGetInt(ev.DeviceID)
+				if m == lua.LNil {
+					continue
+				}
+				mt := m.(*lua.LTable)
+				t := L.NewTable()
+				dt := L.NewTable()
+				dt.RawSetInt(1, lua.LNumber(ev.Data1))
+				dt.RawSetInt(2, lua.LNumber(ev.Data2))
+				t.RawSetString("channel", lua.LNumber(ev.Status&0x0f))
+				t.RawSetString("status", lua.LNumber(ev.Status&0xf0))
+				t.RawSetString("data", dt)
+				mt.RawSet(lua.LString("in"), t)
 			default:
 				L.SetGlobal("tick", lua.LNumber(float64(tick)))
 				//vj.SetButton(vjoy.BTN_A, toggle)
@@ -111,6 +156,11 @@ func main() {
 				tick++
 				if tick == 1 {
 					L.SetGlobal("starting", lua.LBool(false))
+				}
+				for i := 0; i < len(midis.Devices); i++ {
+					if m, ok := miditable.RawGetInt(i).(*lua.LTable); ok == true {
+						m.RawSet(lua.LString("in"), lua.LNil)
+					}
 				}
 				time.Sleep(ft)
 			}
