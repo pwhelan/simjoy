@@ -2,9 +2,33 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/bendahl/uinput",
+			"repository": "https://github.com/bendahl/uinput",
+			"revision": "6089bc7274d97df4c916d1fd1d0ecd55fa85b9ea",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/chzyer/readline",
 			"repository": "https://github.com/chzyer/readline",
 			"revision": "2972be24d48e78746da79ba8e24e8b488c9880de",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-runewidth",
+			"repository": "https://github.com/mattn/go-runewidth",
+			"revision": "ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/nsf/termbox-go",
+			"repository": "https://github.com/nsf/termbox-go",
+			"revision": "b66b20ab708e289ff1eb3e218478302e6aec28ce",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/simulatedsimian/joystick",
+			"repository": "https://github.com/simulatedsimian/joystick",
+			"revision": "05e14927b68a38cf179e504e2da03cbf0d744908",
 			"branch": "master"
 		},
 		{
@@ -24,6 +48,13 @@
 			"repository": "https://github.com/yuin/gopher-lua",
 			"revision": "46796da1b0b4794e1e341883a399f12cc7574b55",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/sys/unix",
+			"repository": "https://go.googlesource.com/sys",
+			"revision": "1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded",
+			"branch": "master",
+			"path": "/unix"
 		}
 	]
 }

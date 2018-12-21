@@ -10,9 +10,10 @@ import (
 	"vjoy"
 )
 
-const luaVJOyTypeName = "person"
+const luaVJOyTypeName = "vjoy"
+const luaMIDITypeName = "midi"
 
-// Registers my person type to given L.
+// Registers VJoy type
 func registerVJoy(L *lua.LState) {
 	mt := L.NewTypeMetatable(luaVJOyTypeName)
 	// methods
@@ -62,6 +63,33 @@ func userdataVJoy(L *lua.LState, vj *vjoy.VJoy) lua.LValue {
 	return ud
 }
 
+// Registers MIDI Type
+func registerMIDI(L *lua.LState) {
+	mt := L.NewTypeMetatable(luaMIDITypeName)
+	// methods
+	L.SetField(mt, "__index", L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
+		"Send": func(L *lua.LState) int {
+			ud := L.CheckUserData(1)
+			if m, ok := ud.Value.(*midi.MIDI); !ok {
+				L.ArgError(1, "MIDI expected")
+				return 0
+			} else {
+				if L.GetTop() == 5 {
+					channel := L.CheckInt64(2)
+					status := L.CheckInt64(3)
+					hb := L.CheckInt64(4)
+					lb := L.CheckInt64(5)
+					m.Send(channel, status, hb, lb)
+					return 0
+				} else {
+					L.ArgError(1, "4 arguments expected")
+				}
+			}
+			return 0
+		},
+	}))
+}
+
 // Constructor
 // midi.in = {
 //	channel
@@ -77,6 +105,10 @@ func userdataVJoy(L *lua.LState, vj *vjoy.VJoy) lua.LValue {
 func userdataMIDI(L *lua.LState, m *midi.MIDI) lua.LValue {
 	t := L.NewTable()
 	t.RawSet(lua.LString("in"), lua.LNil)
+	mud := L.NewUserData()
+	mud.Value = m
+	L.SetMetatable(mud, L.GetTypeMetatable(luaMIDITypeName))
+	t.RawSet(lua.LString("out"), mud)
 	return t
 }
 
@@ -97,11 +129,12 @@ func main() {
 	quit := make(chan int)
 	go func() {
 		ft := 1000 * time.Millisecond / 60.0
-		toggle := 0
 		L := lua.NewState()
 		defer L.Close()
 
 		tick := 0
+
+		registerMIDI(L)
 
 		registerVJoy(L)
 		vjoy.Lua(L)
@@ -120,9 +153,16 @@ func main() {
 		L.SetGlobal("vjoys", vjoystable)
 		L.SetGlobal("tick", lua.LNumber(float64(tick)))
 
-		if err := L.DoFile("hello.lua"); err != nil {
+		script, err := L.LoadFile("hello.lua")
+		if err != nil {
 			panic(err)
 		}
+
+		L.Push(script)
+		if err := L.PCall(0, lua.MultRet, nil); err != nil {
+			panic(err)
+		}
+		L.SetGlobal("starting", lua.LBool(false))
 
 		for {
 			select {
@@ -146,19 +186,12 @@ func main() {
 			default:
 				L.SetGlobal("tick", lua.LNumber(float64(tick)))
 				//vj.SetButton(vjoy.BTN_A, toggle)
-				if toggle == 1 {
-					toggle = 0
-				} else {
-					toggle = 1
-				}
-				if err := L.DoFile("hello.lua"); err != nil {
+				L.Push(script)
+				if err := L.PCall(0, lua.MultRet, nil); err != nil {
 					panic(err)
 				}
 				vj.Tick()
 				tick++
-				if tick == 1 {
-					L.SetGlobal("starting", lua.LBool(false))
-				}
 				for i := 0; i < len(midis.Devices); i++ {
 					if m, ok := miditable.RawGetInt(i).(*lua.LTable); ok == true {
 						m.RawSet(lua.LString("in"), lua.LNil)
