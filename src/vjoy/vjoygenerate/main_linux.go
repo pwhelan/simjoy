@@ -79,7 +79,7 @@ func main() {
 		return
 	}
 
-	fd, err = os.OpenFile("const_linux.go", os.O_RDWR|os.O_CREATE, 0644)
+	fd, err = os.OpenFile("const_linux.go", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return
