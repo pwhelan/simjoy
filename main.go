@@ -6,111 +6,9 @@ import (
 
 	lua "github.com/yuin/gopher-lua"
 
-	"midi"
-	"vjoy"
+	"github.com/pwhelan/simjoy/midi"
+	"github.com/pwhelan/simjoy/vjoy"
 )
-
-const luaVJOyTypeName = "vjoy"
-const luaMIDITypeName = "midi"
-
-// Registers VJoy type
-func registerVJoy(L *lua.LState) {
-	mt := L.NewTypeMetatable(luaVJOyTypeName)
-	// methods
-	L.SetField(mt, "__index", L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
-		"SetButton": func(L *lua.LState) int {
-			ud := L.CheckUserData(1)
-			if vj, ok := ud.Value.(*vjoy.VJoy); !ok {
-				L.ArgError(1, "vjoy expected")
-				return 0
-			} else {
-				if L.GetTop() == 3 {
-					btn := L.CheckInt(2)
-					state := L.CheckInt(3)
-					vj.SetButton(btn, state)
-					return 0
-				} else {
-					L.ArgError(1, "two arguments expected")
-				}
-			}
-			return 0
-		},
-		"SetAxis": func(L *lua.LState) int {
-			ud := L.CheckUserData(1)
-			if vj, ok := ud.Value.(*vjoy.VJoy); !ok {
-				L.ArgError(1, "vjoy expected")
-				return 0
-			} else {
-				if L.GetTop() == 3 {
-					axis := L.CheckInt(2)
-					pos := L.CheckInt(3)
-					vj.SetAxis(axis, pos)
-					return 0
-				} else {
-					L.ArgError(1, "two arguments expected")
-				}
-			}
-			return 0
-		},
-	}))
-}
-
-// Constructor
-func userdataVJoy(L *lua.LState, vj *vjoy.VJoy) lua.LValue {
-	ud := L.NewUserData()
-	ud.Value = vj
-	L.SetMetatable(ud, L.GetTypeMetatable(luaVJOyTypeName))
-	return ud
-}
-
-// Registers MIDI Type
-func registerMIDI(L *lua.LState) {
-	mt := L.NewTypeMetatable(luaMIDITypeName)
-	// methods
-	L.SetField(mt, "__index", L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
-		"Send": func(L *lua.LState) int {
-			ud := L.CheckUserData(1)
-			if m, ok := ud.Value.(*midi.MIDI); !ok {
-				L.ArgError(1, "MIDI expected")
-				return 0
-			} else {
-				if L.GetTop() == 5 {
-					channel := L.CheckInt64(2)
-					status := L.CheckInt64(3)
-					hb := L.CheckInt64(4)
-					lb := L.CheckInt64(5)
-					m.Send(channel, status, hb, lb)
-					return 0
-				} else {
-					L.ArgError(1, "4 arguments expected")
-				}
-			}
-			return 0
-		},
-	}))
-}
-
-// Constructor
-// midi.in = {
-//	channel
-//	status
-//	data = [
-//		0,
-//		1
-//	]
-// }
-// midi.out = {
-// 	send(channel, status, hb, lb)
-// }
-func userdataMIDI(L *lua.LState, m *midi.MIDI) lua.LValue {
-	t := L.NewTable()
-	t.RawSet(lua.LString("in"), lua.LNil)
-	mud := L.NewUserData()
-	mud.Value = m
-	L.SetMetatable(mud, L.GetTypeMetatable(luaMIDITypeName))
-	t.RawSet(lua.LString("out"), mud)
-	return t
-}
 
 func main() {
 	midis, err := midi.OpenDevices()
@@ -128,7 +26,7 @@ func main() {
 
 	quit := make(chan int)
 	go func() {
-		ft := 1000 * time.Millisecond / 60.0
+		ft := (1000 * time.Millisecond) / 60.0
 		L := lua.NewState()
 		defer L.Close()
 
