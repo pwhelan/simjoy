@@ -1,35 +1,47 @@
 function init ()
 	print("hello")
-end
-
-if starting == true then
-	init()
-	toggle = 0
-	midi[1]["out"]:Send(14, 144, 36, 69)
+	toggel = false
 end
 
 vjoy = vjoys[1]
 
--- midi[1]["out"]:Send(14, 144, 36, 127)
--- midi[1]["out"]:Send(14, 144, 36, 0)
+function tick(cur)
+	-- print("tick: ", tostring(cur))
+	if (cur % 100) == 0 then
+		if toggle == true then
+			toggle = false
+			print("WAX ON")
+		else
+			toggle = true
+			print("WAX OFF")
+		end
+		-- print("ON")
+		-- midi[1]["out"]:Send(1, 144, 50, 100)
+	elseif (cur % 50) == 0 then
+		-- print("OFF")
+		-- midi[1]["out"]:Send(1, 128, 50, 0)
+	end
+end
 
-if midi[1]["in"] ~= nil then
-	m = midi[1]["in"]
-	if m.data[1] == 36 then
-		if m.status == 144 then
+function midirecv(dev, msg)
+	print("MIDI RECV'd: ", dev["name"])
+	-- midi[2]["out"]:Send(14, 144, 36, 69)	
+	if msg.data[1] == 48 then
+		print("48!")
+		if msg.status == 144 then
 			vjoy:SetButton(joystick.BTN_A, 1)
-		elseif m.status == 128 then
+		elseif msg.status == 128 then
 			vjoy:SetButton(joystick.BTN_A, 0)
 		end
 	end
 
-	if m.status == 176 and m.data[1] == 16 then
-		vjoy:SetAxis(joystick.ABS_X, (63356 * (m.data[2] / 127)) - 32768)
+	if msg.status == 176 and msg.data[1] == 16 then
+		vjoy:SetAxis(joystick.ABS_X, (63356 * (msg.data[2] / 127)) - 32768)
 	end
 
 	print("midi: ", 
-		m.channel, 
-		m.status, 
-		m.data[1], 
-		m.data[2])
+		msg.channel, 
+		msg.status, 
+		msg.data[1], 
+		msg.data[2])
 end
