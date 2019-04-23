@@ -55,5 +55,6 @@ func userdataMIDI(L *lua.LState, m *midi.MIDI) lua.LValue {
 	mud.Value = m
 	L.SetMetatable(mud, L.GetTypeMetatable(MidiTypeName))
 	t.RawSet(lua.LString("out"), mud)
+	t.RawSet(lua.LString("name"), lua.LString(m.Info.Name))
 	return t
 }

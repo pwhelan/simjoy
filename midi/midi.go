@@ -1,12 +1,15 @@
 package midi
 
 import (
+	"fmt"
 	"github.com/rakyll/portmidi"
 )
 
 type MIDI struct {
-	in  *portmidi.Stream
-	out *portmidi.Stream
+	ID   portmidi.DeviceID
+	Info *portmidi.DeviceInfo
+	in   *portmidi.Stream
+	out  *portmidi.Stream
 }
 
 func (m *MIDI) Send(channel int64, status int64, hb int64, lb int64) {
@@ -30,7 +33,7 @@ func init() {
 func OpenDevices() (*MIDIS, error) {
 	devs := make([]*MIDI, 0)
 	for i := 0; i < portmidi.CountDevices(); i += 2 {
-		midi, err := OpenDevice(i)
+		midi, err := OpenDevice(portmidi.DeviceID(i))
 		if err != nil {
 			return nil, err
 		}
@@ -45,20 +48,24 @@ func OpenDevices() (*MIDIS, error) {
 				ev := <-c
 				midis.Channel <- Event{ev, id}
 			}
+			fmt.Println("OUT!")
 		}(id, dev.in.Listen())
 	}
 	return midis, nil
 }
 
-func OpenDevice(deviceID int) (*MIDI, error) {
-	out, err := portmidi.NewOutputStream(portmidi.DeviceID(deviceID), 1024, 0)
+func OpenDevice(deviceID portmidi.DeviceID) (*MIDI, error) {
+	out, err := portmidi.NewOutputStream(deviceID, 1024, 0)
 	if err != nil {
 		return nil, err
 	}
-	in, err := portmidi.NewInputStream(portmidi.DeviceID(deviceID+1), 1024)
+	in, err := portmidi.NewInputStream(deviceID+1, 1024)
 	if err != nil {
 		out.Close()
 		return nil, err
 	}
-	return &MIDI{in, out}, nil
+	return &MIDI{
+		deviceID,
+		portmidi.Info(deviceID),
+		in, out}, nil
 }
