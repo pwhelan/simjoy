@@ -36,7 +36,7 @@ func (vj *VJoy) SetButton(btn int, status int) {
 
 func (vj *VJoy) SetAxis(axis int, pos int) {
 	desc := vj.handler.(*vjoyWindowsHandler)
-	if axis := desc.dev.Axi(uint(axis)); axis != nil {
+	if axis := desc.dev.Axis(vjoy.AxisName(axis)); axis != nil {
 		axis.Seti(pos)
 	}
 }
