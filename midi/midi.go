@@ -30,6 +30,15 @@ func init() {
 	portmidi.Initialize()
 }
 
+func (midis *MIDIS) listenDevice(midi *MIDI, c <-chan portmidi.Event) {
+	fmt.Printf("Listening on %s[%d]\n", midi.Info.Name, midi.ID)
+	for {
+		fmt.Printf("Recv'd on %s[%d]\n", midi.Info.Name, midi.ID)
+		ev := <-c
+		midis.Channel <- Event{ev, int(midi.ID)}
+	}
+}
+
 func OpenDevices() (*MIDIS, error) {
 	devs := make([]*MIDI, 0)
 	for i := 0; i < portmidi.CountDevices(); i += 2 {
@@ -42,14 +51,9 @@ func OpenDevices() (*MIDIS, error) {
 		}
 	}
 	midis := &MIDIS{Devices: devs, Channel: make(chan Event)}
-	for id, dev := range devs {
-		go func(deviceID int, c <-chan portmidi.Event) {
-			for {
-				ev := <-c
-				midis.Channel <- Event{ev, id}
-			}
-			fmt.Println("OUT!")
-		}(id, dev.in.Listen())
+	for _, dev := range devs {
+		fmt.Printf("Listen on %d\n", dev.ID)
+		go midis.listenDevice(dev, dev.in.Listen())
 	}
 	return midis, nil
 }
