@@ -42,7 +42,7 @@ func (midis *MIDIS) listenDevice(midi *MIDI, c <-chan portmidi.Event) {
 func OpenDevices() (*MIDIS, error) {
 	devs := make([]*MIDI, 0)
 	for i := 0; i < portmidi.CountDevices(); i += 2 {
-		midi, err := OpenDevice(portmidi.DeviceID(i))
+		midi, err := openDevice(portmidi.DeviceID(i))
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +58,7 @@ func OpenDevices() (*MIDIS, error) {
 	return midis, nil
 }
 
-func OpenDevice(deviceID portmidi.DeviceID) (*MIDI, error) {
+func openDevice(deviceID portmidi.DeviceID) (*MIDI, error) {
 	out, err := portmidi.NewOutputStream(deviceID, 1024, 0)
 	if err != nil {
 		return nil, err
