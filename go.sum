@@ -7,6 +7,8 @@ github.com/rakyll/portmidi v0.0.0-20170716032345-1246dd47c560 h1:LxQoLCD5lQzG48j
 github.com/rakyll/portmidi v0.0.0-20170716032345-1246dd47c560/go.mod h1:tO1ylmFo6+hnYFvj/fd92q30wkNQwgWC/8mcHq0KkQU=
 github.com/simulatedsimian/joystick v1.0.1 h1:bZYHP+qaEmx0oc6oFIYQCt+rYL46G6rZRke+bipEEpY=
 github.com/simulatedsimian/joystick v1.0.1/go.mod h1:V+4pJKB2SmVXfp8w7EW5RR9InUXO5M/WhVEHwosjujA=
+github.com/splace/joysticks v0.0.0-20180907185707-7416f8bb58bd h1:WO95lkUpx1EbYOnppBa8i/fEY6t2itFxK5LCCRcgzKQ=
+github.com/splace/joysticks v0.0.0-20180907185707-7416f8bb58bd/go.mod h1:PQPCtmjcD4hfFT4yHSY7zomN8fvov8fFvQWYSth8L34=
 github.com/tajtiattila/vjoy v0.0.0-20141002142150-b263a01f7f14 h1:jWVozeQzrbgbNuExDfRbzadYwYm2qVXyuGUGy6aWjb8=
 github.com/tajtiattila/vjoy v0.0.0-20141002142150-b263a01f7f14/go.mod h1:kNczauSqoiRyofaTPvzmq98vBh7949UYOhxR7R3RVks=
 github.com/ynsta/uinput v0.0.0-20170902160421-4d1af569ef38 h1:nh6PV99BgIfjCuslHHuvqJm3YvZBug0gKY+bQM/oHG8=

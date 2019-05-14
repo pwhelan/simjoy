@@ -39,9 +39,9 @@ function midirecv(dev, msg)
 		vjoy:SetAxis(joystick.ABS_X, (63356 * (msg.data[2] / 127)) - 32768)
 	end
 
-	print("midi: ", 
-		msg.channel, 
-		msg.status, 
-		msg.data[1], 
-		msg.data[2])
+end
+
+function joystickrecv(ev)
+	print("GAMEPAD=")
+	print(ev['type'])
 end

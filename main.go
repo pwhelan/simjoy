@@ -10,11 +10,12 @@ import (
 
 	lua "github.com/yuin/gopher-lua"
 
+	"github.com/pwhelan/simjoy/joystick"
 	"github.com/pwhelan/simjoy/midi"
 	"github.com/pwhelan/simjoy/vjoy"
 )
 
-func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS) {
+func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks chan joystick.Event) {
 	tick := 0
 	ft := (1000 * time.Millisecond) / 60.0
 
@@ -57,8 +58,6 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS) {
 	fmt.Println("called")
 
 	ticker := time.NewTicker(ft)
-	t := L.NewTable()
-	dt := L.NewTable()
 
 	tickfn := L.GetGlobal("tick")
 	for {
@@ -74,6 +73,8 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS) {
 				continue
 			}
 			mt := m.(*lua.LTable)
+			t := L.NewTable()
+			dt := L.NewTable()
 			t.RawSetString("channel", lua.LNumber(ev.Status&0x0f))
 			t.RawSetString("status", lua.LNumber(ev.Status&0xf0))
 			dt.RawSetInt(1, lua.LNumber(ev.Data1))
@@ -86,6 +87,44 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS) {
 				Protect: true,
 			}, mt, t); err != nil {
 				panic(err)
+			}
+		case ev := <-joysticks:
+			switch ev.(type) {
+			case joystick.AxisEvent:
+				ca := ev.(joystick.AxisEvent)
+
+				axisevent := L.NewTable()
+				axisevent.RawSetString("type", lua.LNumber(ca.Type))
+				//axisevent.RawSetString("timestamp", lua.LNumber(ca.Timestamp))
+				//axisevent.RawSetString("joystickid", lua.LNumber(ca.Which))
+				//axisevent.RawSetString("axis", lua.LNumber(ca.Axis))
+				//axisevent.RawSetString("value", lua.LNumber(ca.Value))
+
+				if err := L.CallByParam(lua.P{
+					Fn:      L.GetGlobal("joystickrecv"),
+					NRet:    0,
+					Protect: true,
+				}, axisevent); err != nil {
+					panic(err)
+				}
+			case joystick.ButtonEvent:
+				//fmt.Println("PUSH THE BUTTON")
+				btn := ev.(joystick.ButtonEvent)
+
+				btnevent := L.NewTable()
+				btnevent.RawSetString("type", lua.LNumber(btn.Type))
+				//btnevent.RawSetString("timestamp", lua.LNumber(btn.Timestamp))
+				//btnevent.RawSetString("joystickid", lua.LNumber(btn.Which))
+				//btnevent.RawSetString("button", lua.LNumber(btn.Button))
+				//btnevent.RawSetString("state", lua.LNumber(btn.State))
+
+				if err := L.CallByParam(lua.P{
+					Fn:      L.GetGlobal("joystickrecv"),
+					NRet:    0,
+					Protect: true,
+				}, btnevent); err != nil {
+					panic(err)
+				}
 			}
 		case <-ticker.C:
 			if tickfn != nil {
@@ -108,6 +147,11 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS) {
 func main() {
 	ctxtmain, finish := context.WithCancel(context.Background())
 
+	joysticks, err := joystick.OpenDevices()
+	if err != nil {
+		panic(err)
+	}
+
 	midis, err := midi.OpenDevices()
 	if err != nil {
 		panic(err)
@@ -122,7 +166,7 @@ func main() {
 	vjoys[0] = vj
 
 	ctxteng, restart := context.WithCancel(ctxtmain)
-	go run(ctxteng, vjoys, midis)
+	go run(ctxteng, vjoys, midis, joysticks)
 
 	csig := make(chan os.Signal, 1)
 	signal.Notify(csig, syscall.SIGTERM, syscall.SIGHUP)
@@ -141,7 +185,7 @@ func main() {
 				fmt.Println("HUP")
 				restart()
 				ctxteng, restart = context.WithCancel(ctxtmain)
-				go run(ctxteng, vjoys, midis)
+				go run(ctxteng, vjoys, midis, joysticks)
 				break
 			}
 		}

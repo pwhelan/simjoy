@@ -9,6 +9,7 @@ require (
 	github.com/nsf/termbox-go v0.0.0-20180819125858-b66b20ab708e // indirect
 	github.com/rakyll/portmidi v0.0.0-20170716032345-1246dd47c560
 	github.com/simulatedsimian/joystick v1.0.1
+	github.com/splace/joysticks v0.0.0-20180907185707-7416f8bb58bd
 	github.com/tajtiattila/vjoy v0.0.0-20141002142150-b263a01f7f14
 	github.com/ynsta/uinput v0.0.0-20170902160421-4d1af569ef38
 	github.com/yuin/gopher-lua v0.0.0-20180630135845-46796da1b0b4
