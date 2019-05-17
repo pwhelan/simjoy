@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/simulatedsimian/joystick"
+	lua "github.com/yuin/gopher-lua"
 )
 
 const (
@@ -63,7 +64,6 @@ func OpenDevices() (chan Event, error) {
 				}
 				for i := 0; i < js.AxisCount(); i++ {
 					if state.AxisData[i] != axis[i] {
-						fmt.Println("JOYSTICK AXIS")
 						ch <- AxisEvent{
 							EventHeader{
 								Type:       EventAxis,
@@ -78,7 +78,6 @@ func OpenDevices() (chan Event, error) {
 				for i := 0; i < js.ButtonCount(); i++ {
 					btnbit := uint32(1 << uint(i))
 					if (btnbit & state.Buttons) != (btnbit & buttons) {
-						fmt.Println("JOYSTICK BUTTON")
 						ch <- ButtonEvent{
 							EventHeader{
 								Type:       EventButton,
@@ -94,4 +93,11 @@ func OpenDevices() (chan Event, error) {
 		}(jsid, js)
 	}
 	return ch, nil
+}
+
+// Lua exposes the joystick constants
+func Lua(l *lua.LState) {
+	t := l.GetGlobal("joystick").(*lua.LTable)
+	t.RawSetString("EVENT_BUTTON", lua.LNumber(EventButton))
+	t.RawSetString("EVENT_AXIS", lua.LNumber(EventAxis))
 }
