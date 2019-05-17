@@ -30,6 +30,8 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks 
 		vjoystable.Append(userdataVJoy(L, vj))
 	}
 
+	joystick.Lua(L)
+
 	miditable := L.NewTable()
 	for idx := range midis.Devices {
 		m := midis.Devices[idx]
@@ -95,10 +97,9 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks 
 
 				axisevent := L.NewTable()
 				axisevent.RawSetString("type", lua.LNumber(ca.Type))
-				//axisevent.RawSetString("timestamp", lua.LNumber(ca.Timestamp))
-				//axisevent.RawSetString("joystickid", lua.LNumber(ca.Which))
-				//axisevent.RawSetString("axis", lua.LNumber(ca.Axis))
-				//axisevent.RawSetString("value", lua.LNumber(ca.Value))
+				axisevent.RawSetString("joystickid", lua.LNumber(ca.JoystickID))
+				axisevent.RawSetString("axis", lua.LNumber(ca.Axis))
+				axisevent.RawSetString("value", lua.LNumber(ca.Value))
 
 				if err := L.CallByParam(lua.P{
 					Fn:      L.GetGlobal("joystickrecv"),
@@ -113,10 +114,9 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks 
 
 				btnevent := L.NewTable()
 				btnevent.RawSetString("type", lua.LNumber(btn.Type))
-				//btnevent.RawSetString("timestamp", lua.LNumber(btn.Timestamp))
-				//btnevent.RawSetString("joystickid", lua.LNumber(btn.Which))
-				//btnevent.RawSetString("button", lua.LNumber(btn.Button))
-				//btnevent.RawSetString("state", lua.LNumber(btn.State))
+				btnevent.RawSetString("joystickid", lua.LNumber(btn.JoystickID))
+				btnevent.RawSetString("button", lua.LNumber(btn.Button))
+				btnevent.RawSetString("value", lua.LBool(btn.Value))
 
 				if err := L.CallByParam(lua.P{
 					Fn:      L.GetGlobal("joystickrecv"),
