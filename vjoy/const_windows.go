@@ -6,40 +6,40 @@ import (
 )
 
 const (
-	ABS_X       int = vjoy.AxisX
-	ABS_Y           = AxisY
-	ABS_Z           = AxisZ
-	ABS_RX          = AxisRX
-	ABS_RY          = AxisRY
-	ABS_RZ          = AxisRZ
-	BTN_TRIGGER     = 0
-	BTN_THUMB       = 1
-	BTN_THUMB2      = 2
-	BTN_TOP         = 3
-	BTN_TOP2        = 4
-	BTN_PINKIE      = 5
-	BTN_BASE        = 6
-	BTN_BASE2       = 7
-	BTN_BASE3       = 8
-	BTN_BASE4       = 9
-	BTN_BASE5       = 10
-	BTN_BASE6       = 11
-	BTN_DEAD        = 12
-	BTN_A           = 13
-	BTN_B           = 14
-	BTN_C           = 15
-	BTN_X           = 16
-	BTN_Y           = 17
-	BTN_Z           = 18
-	BTN_TL          = 19
-	BTN_TR          = 20
-	BTN_TL2         = 21
-	BTN_TR2         = 22
-	BTN_SELECT      = 23
-	BTN_START       = 24
-	BTN_MODE        = 25
-	BTN_THUMBL      = 26
-	BTN_THUMBR      = 27
+	ABS_X       uint = uint(vjoy.AxisX)
+	ABS_Y            = uint(vjoy.AxisY)
+	ABS_Z            = uint(vjoy.AxisZ)
+	ABS_RX           = uint(vjoy.AxisRX)
+	ABS_RY           = uint(vjoy.AxisRY)
+	ABS_RZ           = uint(vjoy.AxisRZ)
+	BTN_TRIGGER      = 0
+	BTN_THUMB        = 1
+	BTN_THUMB2       = 2
+	BTN_TOP          = 3
+	BTN_TOP2         = 4
+	BTN_PINKIE       = 5
+	BTN_BASE         = 6
+	BTN_BASE2        = 7
+	BTN_BASE3        = 8
+	BTN_BASE4        = 9
+	BTN_BASE5        = 10
+	BTN_BASE6        = 11
+	BTN_DEAD         = 12
+	BTN_A            = 13
+	BTN_B            = 14
+	BTN_C            = 15
+	BTN_X            = 16
+	BTN_Y            = 17
+	BTN_Z            = 18
+	BTN_TL           = 19
+	BTN_TR           = 20
+	BTN_TL2          = 21
+	BTN_TR2          = 22
+	BTN_SELECT       = 23
+	BTN_START        = 24
+	BTN_MODE         = 25
+	BTN_THUMBL       = 26
+	BTN_THUMBR       = 27
 )
 
 func Lua(L *lua.LState) {
