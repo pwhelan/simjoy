@@ -3,8 +3,13 @@ function init ()
 end
 
 vjoy = vjoys[1]
+curtick = 0
 
 function tick(cur)
+	if (curtick % 100) == 0 then
+		print("CURTICK:", curtick)
+	end
+	curtick = cur
 	if (cur % 100) == 0 then
 		if toggle == true then
 			toggle = false
@@ -14,6 +19,10 @@ function tick(cur)
 			print("toggled on")
 		end
 	end
+end
+
+function mouse(ev)
+	print("Event: ", ev['event'], " button: ", ev['button'])
 end
 
 function midirecv(dev, msg)

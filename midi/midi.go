@@ -2,6 +2,7 @@ package midi
 
 import (
 	"fmt"
+
 	"github.com/rakyll/portmidi"
 )
 

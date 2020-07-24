@@ -6,45 +6,27 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	lua "github.com/yuin/gopher-lua"
 
 	"github.com/pwhelan/simjoy/joystick"
-	"github.com/pwhelan/simjoy/midi"
-	"github.com/pwhelan/simjoy/vjoy"
+
+	"github.com/pwhelan/simjoy/engine/midiengine"
+	"github.com/pwhelan/simjoy/engine/robotengine"
+	"github.com/pwhelan/simjoy/engine/vjoyengine"
 )
 
-func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks chan joystick.Event) {
-	tick := 0
-	ft := (1000 * time.Millisecond) / 60.0
-
+func start(ctxt context.Context, joysticks chan joystick.Event) {
 	L := lua.NewState()
 	defer L.Close()
 
-	registerMIDI(L)
-	registerVJoy(L)
-	vjoy.Lua(L)
-	vjoystable := L.NewTable()
-	for _, vj := range vjoys {
-		vjoystable.Append(userdataVJoy(L, vj))
-	}
-
+	midi, _ := midiengine.Register(L)
+	vj, _ := vjoyengine.Register(L)
+	robot, _ := robotengine.Register(L)
 	joystick.Lua(L)
 
-	miditable := L.NewTable()
-	for idx := range midis.Devices {
-		m := midis.Devices[idx]
-		func(m *midi.MIDI) {
-			fmt.Printf("Added MIDI device: %d:%s\n", m.ID, m.Info.Name)
-			miditable.RawSetInt(int(m.ID), userdataMIDI(L, m))
-		}(m)
-	}
-	L.SetGlobal("midi", miditable)
-	L.SetGlobal("vjoys", vjoystable)
-
-	fmt.Println("loading ...")
-	err := L.DoFile("hello.lua")
+	fmt.Printf("loading: %s\n", os.Args[1])
+	err := L.DoFile(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
@@ -59,37 +41,21 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks 
 	}
 	fmt.Println("called")
 
-	ticker := time.NewTicker(ft)
+	vjchan := vj.Channel().Out()
+	midichan := midi.Channel().Out()
+	robotchan := robot.Channel().Out()
 
-	tickfn := L.GetGlobal("tick")
 	for {
 		select {
 		case <-ctxt.Done():
 			fmt.Println("Restart")
 			return
-		case ev := <-midis.Channel:
-			fmt.Printf("DEVICE-ID: %d\n", ev.DeviceID)
-			m := miditable.RawGetInt(ev.DeviceID)
-			if m == lua.LNil {
-				fmt.Println("BAD DEVICE")
-				continue
-			}
-			mt := m.(*lua.LTable)
-			t := L.NewTable()
-			dt := L.NewTable()
-			t.RawSetString("channel", lua.LNumber(ev.Status&0x0f))
-			t.RawSetString("status", lua.LNumber(ev.Status&0xf0))
-			dt.RawSetInt(1, lua.LNumber(ev.Data1))
-			dt.RawSetInt(2, lua.LNumber(ev.Data2))
-			t.RawSetString("data", dt)
-			mt.RawSet(lua.LString("in"), t)
-			if err := L.CallByParam(lua.P{
-				Fn:      L.GetGlobal("midirecv"),
-				NRet:    0,
-				Protect: true,
-			}, mt, t); err != nil {
-				panic(err)
-			}
+		case data := <-vjchan:
+			vj.Tick(L, data)
+		case data := <-midichan:
+			midi.Tick(L, data)
+		case data := <-robotchan:
+			robot.Tick(L, data)
 		case ev := <-joysticks:
 			switch ev.(type) {
 			case joystick.AxisEvent:
@@ -126,20 +92,6 @@ func run(ctxt context.Context, vjoys []*vjoy.VJoy, midis *midi.MIDIS, joysticks 
 					panic(err)
 				}
 			}
-		case <-ticker.C:
-			if tickfn != nil {
-				if err := L.CallByParam(lua.P{
-					Fn:      tickfn,
-					NRet:    0,
-					Protect: true,
-				}, lua.LNumber(tick)); err != nil {
-					panic(err)
-				}
-			}
-			for _, vj := range vjoys {
-				vj.Tick()
-			}
-			tick++
 		}
 	}
 }
@@ -152,21 +104,8 @@ func main() {
 		panic(err)
 	}
 
-	midis, err := midi.OpenDevices()
-	if err != nil {
-		panic(err)
-	}
-
-	vjoys := make([]*vjoy.VJoy, 1)
-	vj, err := vjoy.OpenVJoy(0)
-	if err != nil {
-		panic(err)
-	}
-
-	vjoys[0] = vj
-
 	ctxteng, restart := context.WithCancel(ctxtmain)
-	go run(ctxteng, vjoys, midis, joysticks)
+	go start(ctxteng, joysticks)
 
 	csig := make(chan os.Signal, 1)
 	signal.Notify(csig, syscall.SIGTERM, syscall.SIGHUP)
@@ -179,13 +118,13 @@ func main() {
 			case syscall.SIGTERM:
 				fmt.Println("TERM")
 				finish()
-				vj.Close()
+				//vj.Close()
 				os.Exit(0)
 			case syscall.SIGHUP:
 				fmt.Println("HUP")
 				restart()
 				ctxteng, restart = context.WithCancel(ctxtmain)
-				go run(ctxteng, vjoys, midis, joysticks)
+				go start(ctxteng, joysticks)
 				break
 			}
 		}
