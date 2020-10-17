@@ -1,6 +1,8 @@
 package robotengine
 
 import (
+	"fmt"
+
 	"github.com/eapache/channels"
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
@@ -21,25 +23,28 @@ func Register(L *lua.LState) (*Engine, error) {
 		"__index",
 		L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
 			"Send": func(L *lua.LState) int {
-				//ud := L.CheckUserData(1)
-				keys := make([]string, L.GetTop()-1)
+				L.CheckUserData(1)
+				fmt.Printf("ARGS=%d\n", L.GetTop())
+				key := L.CheckString(2)
 
-				for i := 1; i < L.GetTop()-1; i++ {
-					keys[i-1] = L.CheckString(i)
-				}
-				if len(keys) == 1 {
-					robotgo.KeyTap(keys[0])
-				} else {
-					args := make([]interface{}, len(keys)-1)
-					for i := 1; i < len(keys); i++ {
-						args[i] = keys[i]
+				if (L.GetTop() - 2) > 0 {
+					modnum := L.GetTop() - 2
+					mods := make([]interface{}, modnum)
+
+					for i := 3; i <= L.GetTop(); i++ {
+						mods[i-3] = L.CheckString(i)
 					}
-					robotgo.KeyTap(keys[0], args...)
+					robotgo.KeyTap(key, mods...)
+				} else {
+					robotgo.KeyTap(key)
 				}
+
 				return 0
 			},
 		}))
-	L.SetGlobal("keyboard", lkbd)
+	tkbd := L.NewUserData()
+	L.SetMetatable(tkbd, L.GetTypeMetatable("keyboard"))
+	L.SetGlobal("keyboard", tkbd)
 	//lmouse := L.NewTypeMetatable("mouse")
 
 	return &Engine{channel: c}, nil
