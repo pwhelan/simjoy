@@ -1,61 +1,64 @@
 package vjoy
+
 import (
 	lua "github.com/yuin/gopher-lua"
 )
+
 const (
-	BTN_TRIGGER = 288
-	BTN_THUMB = 289
-	BTN_THUMB2 = 290
-	BTN_TOP = 291
-	BTN_TOP2 = 292
-	BTN_PINKIE = 293
-	BTN_BASE = 294
-	BTN_BASE2 = 295
-	BTN_BASE3 = 296
-	BTN_BASE4 = 297
-	BTN_BASE5 = 298
-	BTN_BASE6 = 299
-	BTN_DEAD = 303
-	BTN_GAMEPAD = 304
-	BTN_SOUTH = 304
-	BTN_A = 304
-	BTN_EAST = 305
-	BTN_B = 305
-	BTN_C = 306
-	BTN_NORTH = 307
-	BTN_X = 307
-	BTN_WEST = 308
-	BTN_Y = 308
-	BTN_Z = 309
-	BTN_TL = 310
-	BTN_TR = 311
-	BTN_TL2 = 312
-	BTN_TR2 = 313
-	BTN_SELECT = 314
-	BTN_START = 315
-	BTN_MODE = 316
-	BTN_THUMBL = 317
-	BTN_THUMBR = 318
-	ABS_X = 0
-	ABS_Y = 1
-	ABS_Z = 2
-	ABS_RX = 3
-	ABS_RY = 4
-	ABS_RZ = 5
+	BTN_TRIGGER  = 288
+	BTN_THUMB    = 289
+	BTN_THUMB2   = 290
+	BTN_TOP      = 291
+	BTN_TOP2     = 292
+	BTN_PINKIE   = 293
+	BTN_BASE     = 294
+	BTN_BASE2    = 295
+	BTN_BASE3    = 296
+	BTN_BASE4    = 297
+	BTN_BASE5    = 298
+	BTN_BASE6    = 299
+	BTN_DEAD     = 303
+	BTN_GAMEPAD  = 304
+	BTN_SOUTH    = 304
+	BTN_A        = 304
+	BTN_EAST     = 305
+	BTN_B        = 305
+	BTN_C        = 306
+	BTN_NORTH    = 307
+	BTN_X        = 307
+	BTN_WEST     = 308
+	BTN_Y        = 308
+	BTN_Z        = 309
+	BTN_TL       = 310
+	BTN_TR       = 311
+	BTN_TL2      = 312
+	BTN_TR2      = 313
+	BTN_SELECT   = 314
+	BTN_START    = 315
+	BTN_MODE     = 316
+	BTN_THUMBL   = 317
+	BTN_THUMBR   = 318
+	ABS_X        = 0
+	ABS_Y        = 1
+	ABS_Z        = 2
+	ABS_RX       = 3
+	ABS_RY       = 4
+	ABS_RZ       = 5
 	ABS_THROTTLE = 6
-	ABS_RUDDER = 7
-	ABS_WHEEL = 8
-	ABS_GAS = 9
-	ABS_BRAKE = 10
-	ABS_HAT0X = 16
-	ABS_HAT0Y = 17
-	ABS_HAT1X = 18
-	ABS_HAT1Y = 19
-	ABS_HAT2X = 20
-	ABS_HAT2Y = 21
-	ABS_HAT3X = 22
-	ABS_HAT3Y = 23
+	ABS_RUDDER   = 7
+	ABS_WHEEL    = 8
+	ABS_GAS      = 9
+	ABS_BRAKE    = 10
+	ABS_HAT0X    = 16
+	ABS_HAT0Y    = 17
+	ABS_HAT1X    = 18
+	ABS_HAT1Y    = 19
+	ABS_HAT2X    = 20
+	ABS_HAT2Y    = 21
+	ABS_HAT3X    = 22
+	ABS_HAT3Y    = 23
 )
+
 func Lua(L *lua.LState) {
 	t := L.NewTable()
 	t.RawSetString("BTN_TRIGGER", lua.LNumber(288))
