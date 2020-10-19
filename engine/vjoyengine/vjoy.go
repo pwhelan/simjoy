@@ -85,7 +85,7 @@ func (engine *VJoyEngine) Channel() channels.SimpleOutChannel {
 // Tick the engine once
 func (engine *VJoyEngine) Tick(L *lua.LState, data interface{}) {
 	tickfn := L.GetGlobal("tick")
-	if tickfn != nil {
+	if tickfn != nil && tickfn.Type() == lua.LTFunction {
 		if err := L.CallByParam(lua.P{
 			Fn:      tickfn,
 			NRet:    0,

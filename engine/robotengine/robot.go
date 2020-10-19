@@ -72,11 +72,13 @@ func (engine *Engine) Tick(L *lua.LState, data interface{}) {
 		return
 	}
 
-	if err := L.CallByParam(lua.P{
-		Fn:      L.GetGlobal("mouse"),
-		NRet:    0,
-		Protect: true,
-	}, t); err != nil {
-		panic(err)
+	if fn := L.GetGlobal("mouse"); fn != nil && fn.Type() == lua.LTFunction {
+		if err := L.CallByParam(lua.P{
+			Fn:      fn,
+			NRet:    0,
+			Protect: true,
+		}, t); err != nil {
+			panic(err)
+		}
 	}
 }

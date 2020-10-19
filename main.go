@@ -32,14 +32,16 @@ func start(ctxt context.Context, joysticks chan joystick.Event) {
 	}
 	fmt.Println("loaded")
 
-	if err := L.CallByParam(lua.P{
-		Fn:      L.GetGlobal("init"),
-		NRet:    0,
-		Protect: true,
-	}); err != nil {
-		panic(err)
+	if fn := L.GetGlobal("init"); fn != nil && fn.Type() == lua.LTFunction {
+		if err := L.CallByParam(lua.P{
+			Fn:      fn,
+			NRet:    0,
+			Protect: true,
+		}); err != nil {
+			panic(err)
+		}
+		fmt.Println("init() called")
 	}
-	fmt.Println("called")
 
 	vjchan := vj.Channel().Out()
 	midichan := midi.Channel().Out()
