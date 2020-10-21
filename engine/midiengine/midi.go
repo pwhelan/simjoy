@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eapache/channels"
+
 	"github.com/pwhelan/simjoy/midi"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -67,10 +68,10 @@ func (engine *MIDIEngine) Channel() channels.SimpleOutChannel {
 // Tick the MIDI engine off...
 func (engine *MIDIEngine) Tick(L *lua.LState, data interface{}) {
 	ev := data.(midi.Event)
-	fmt.Printf("DEVICE-ID: %d\n", ev.DeviceID)
+	//fmt.Printf("DEVICE-ID: %d\n", ev.DeviceID)
 	m := engine.miditable.RawGetInt(ev.DeviceID)
 	if m == lua.LNil {
-		fmt.Println("BAD DEVICE")
+		//fmt.Println("BAD DEVICE")
 		return
 	}
 	mt := m.(*lua.LTable)

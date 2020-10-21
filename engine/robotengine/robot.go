@@ -1,8 +1,6 @@
 package robotengine
 
 import (
-	"fmt"
-
 	"github.com/eapache/channels"
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
@@ -24,7 +22,6 @@ func Register(L *lua.LState) (*Engine, error) {
 		L.SetFuncs(L.NewTable(), map[string]lua.LGFunction{
 			"Send": func(L *lua.LState) int {
 				L.CheckUserData(1)
-				fmt.Printf("ARGS=%d\n", L.GetTop())
 				key := L.CheckString(2)
 
 				if (L.GetTop() - 2) > 0 {

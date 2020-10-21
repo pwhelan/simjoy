@@ -34,7 +34,6 @@ func init() {
 func (midis *MIDIS) listenDevice(midi *MIDI, c <-chan portmidi.Event) {
 	fmt.Printf("Listening on %s[%d]\n", midi.Info.Name, midi.ID)
 	for {
-		fmt.Printf("Recv'd on %s[%d]\n", midi.Info.Name, midi.ID)
 		ev := <-c
 		midis.Channel <- Event{ev, int(midi.ID)}
 	}
