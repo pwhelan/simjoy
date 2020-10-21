@@ -69,12 +69,14 @@ func start(ctxt context.Context, joysticks chan joystick.Event) {
 				axisevent.RawSetString("axis", lua.LNumber(ca.Axis))
 				axisevent.RawSetString("value", lua.LNumber(ca.Value))
 
-				if err := L.CallByParam(lua.P{
-					Fn:      L.GetGlobal("joystickrecv"),
-					NRet:    0,
-					Protect: true,
-				}, axisevent); err != nil {
-					panic(err)
+				if fn := L.GetGlobal("joystickrecv"); fn != nil && fn.Type() == lua.LTFunction {
+					if err := L.CallByParam(lua.P{
+						Fn:      fn,
+						NRet:    0,
+						Protect: true,
+					}, axisevent); err != nil {
+						panic(err)
+					}
 				}
 			case joystick.ButtonEvent:
 				//fmt.Println("PUSH THE BUTTON")
@@ -86,12 +88,14 @@ func start(ctxt context.Context, joysticks chan joystick.Event) {
 				btnevent.RawSetString("button", lua.LNumber(btn.Button))
 				btnevent.RawSetString("value", lua.LBool(btn.Value))
 
-				if err := L.CallByParam(lua.P{
-					Fn:      L.GetGlobal("joystickrecv"),
-					NRet:    0,
-					Protect: true,
-				}, btnevent); err != nil {
-					panic(err)
+				if fn := L.GetGlobal("joystickrecv"); fn != nil && fn.Type() == lua.LTFunction {
+					if err := L.CallByParam(lua.P{
+						Fn:      fn,
+						NRet:    0,
+						Protect: true,
+					}, btnevent); err != nil {
+						panic(err)
+					}
 				}
 			}
 		}
